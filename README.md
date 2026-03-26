@@ -2,11 +2,6 @@
 
 MVP systemu rezerwacji apartamentów z zabezpieczeniem przed double-bookingiem i race conditions.
 
-## Commit convention
-
-Use gitflow convention for commit messages in this repository.
-
----
 
 ## Stack
 
