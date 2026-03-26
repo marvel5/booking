@@ -64,6 +64,12 @@ function fieldError(field: keyof LocalErrors): string | undefined {
   return localErrors.value[field] ?? validationErrors.value[field]?.[0]
 }
 
+function toApiDate(dt: string): string {
+  // datetime-local gives "2026-06-01T14:00" — API expects "2026-06-01 14:00:00"
+  const withSpace = dt.replace('T', ' ')
+  return /\d{2}:\d{2}:\d{2}$/.test(withSpace) ? withSpace : `${withSpace}:00`
+}
+
 async function handleSubmit() {
   if (!validate()) {
     return
@@ -71,8 +77,8 @@ async function handleSubmit() {
 
   const success = await submit({
     resource_id: Number(form.resource_id),
-    start_at: form.start_at,
-    end_at: form.end_at,
+    start_at: toApiDate(form.start_at),
+    end_at: toApiDate(form.end_at),
     customer_name: form.customer_name,
   })
 

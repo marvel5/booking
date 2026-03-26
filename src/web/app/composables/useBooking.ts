@@ -28,6 +28,10 @@ export function useBooking() {
         body: payload,
       })
 
+      if (!data?.data?.id) {
+        return false
+      }
+
       booking.value = data.data
       return true
     }
