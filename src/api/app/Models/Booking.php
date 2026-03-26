@@ -2,24 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Fillable(['resource_id', 'start_at', 'end_at', 'customer_name'])]
 class Booking extends Model
 {
     /** @use HasFactory<\Database\Factories\BookingFactory> */
     use HasFactory;
-
-    /**
-     * @var list<string>
-     */
-    protected $fillable = [
-        'resource_id',
-        'start_at',
-        'end_at',
-        'customer_name',
-    ];
 
     /**
      * @return array<string, string>
