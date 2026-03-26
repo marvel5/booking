@@ -28,12 +28,44 @@ const form = reactive({
   customer_name: '',
 })
 
-function fieldError(field: string): string | undefined {
-  return validationErrors.value[field]?.[0]
+interface LocalErrors {
+  resource_id?: string
+  start_at?: string
+  end_at?: string
+  customer_name?: string
+}
+
+const localErrors = ref<LocalErrors>({})
+
+function validate(): boolean {
+  const errors: LocalErrors = {}
+
+  if (!form.resource_id) {
+    errors.resource_id = 'Wybierz apartament.'
+  }
+  if (!form.start_at) {
+    errors.start_at = 'Podaj datę przyjazdu.'
+  }
+  if (!form.end_at) {
+    errors.end_at = 'Podaj datę wyjazdu.'
+  }
+  else if (form.start_at && form.end_at <= form.start_at) {
+    errors.end_at = 'Data wyjazdu musi być późniejsza niż przyjazdu.'
+  }
+  if (!form.customer_name.trim()) {
+    errors.customer_name = 'Podaj imię i nazwisko.'
+  }
+
+  localErrors.value = errors
+  return Object.keys(errors).length === 0
+}
+
+function fieldError(field: keyof LocalErrors): string | undefined {
+  return localErrors.value[field] ?? validationErrors.value[field]?.[0]
 }
 
 async function handleSubmit() {
-  if (!form.resource_id) {
+  if (!validate()) {
     return
   }
 
@@ -51,6 +83,7 @@ async function handleSubmit() {
 
 function handleNewBooking() {
   reset()
+  localErrors.value = {}
   Object.assign(form, { resource_id: '', start_at: '', end_at: '', customer_name: '' })
 }
 </script>
@@ -66,6 +99,7 @@ function handleNewBooking() {
     <form
       v-else
       class="space-y-5"
+      novalidate
       @submit.prevent="handleSubmit"
     >
       <!-- Conflict error -->
@@ -76,7 +110,7 @@ function handleNewBooking() {
       <!-- Resource -->
       <div class="space-y-2">
         <Label for="resource_id">Apartament / zasób</Label>
-        <Select v-model="form.resource_id" required>
+        <Select v-model="form.resource_id">
           <SelectTrigger
             id="resource_id"
             :class="fieldError('resource_id') ? 'border-destructive' : ''"
@@ -109,8 +143,8 @@ function handleNewBooking() {
             id="start_at"
             v-model="form.start_at"
             type="datetime-local"
-            :class="fieldError('start_at') ? 'border-destructive' : ''"
             required
+            :class="fieldError('start_at') ? 'border-destructive' : ''"
           />
           <p v-if="fieldError('start_at')" class="text-sm text-destructive">
             {{ fieldError('start_at') }}
@@ -123,8 +157,8 @@ function handleNewBooking() {
             id="end_at"
             v-model="form.end_at"
             type="datetime-local"
-            :class="fieldError('end_at') ? 'border-destructive' : ''"
             required
+            :class="fieldError('end_at') ? 'border-destructive' : ''"
           />
           <p v-if="fieldError('end_at')" class="text-sm text-destructive">
             {{ fieldError('end_at') }}
@@ -141,8 +175,8 @@ function handleNewBooking() {
           type="text"
           placeholder="Jan Kowalski"
           maxlength="255"
-          :class="fieldError('customer_name') ? 'border-destructive' : ''"
           required
+          :class="fieldError('customer_name') ? 'border-destructive' : ''"
         />
         <p v-if="fieldError('customer_name')" class="text-sm text-destructive">
           {{ fieldError('customer_name') }}
