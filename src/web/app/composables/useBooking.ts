@@ -29,6 +29,7 @@ export function useBooking() {
       })
 
       if (!data?.data?.id) {
+        conflictMessage.value = 'Wystąpił nieoczekiwany błąd. Spróbuj ponownie.'
         return false
       }
 
@@ -36,13 +37,16 @@ export function useBooking() {
       return true
     }
     catch (error: unknown) {
-      const err = error as { data?: ApiErrorResponse, status?: number }
+      const err = error as { data?: ApiErrorResponse, status?: number, message?: string }
 
       if (err.data?.errors) {
         validationErrors.value = err.data.errors
       }
       else if (err.data?.message) {
         conflictMessage.value = err.data.message
+      }
+      else {
+        conflictMessage.value = 'Wystąpił błąd sieci. Sprawdź połączenie i spróbuj ponownie.'
       }
 
       return false
