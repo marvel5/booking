@@ -69,7 +69,7 @@ npm run dev
 
 Frontend dostępny pod: **http://localhost:3000**
 
-> Nuxt automatycznie proxy-uje `/api` → `http://localhost/api` — CORS nie wymaga dodatkowej konfiguracji.
+> Nuxt automatycznie proxy-uje `/api/v1/**` → `http://localhost/api/v1/**` — CORS nie wymaga dodatkowej konfiguracji.
 
 ---
 
