@@ -147,21 +147,25 @@ app/
 │   ├── Booking.php
 │   └── Resource.php
 ├── Services/
-│   └── BookingService.php          # logika biznesowa + lockForUpdate
+│   └── BookingService.php          # logika biznesowa + lockForUpdate na resources
 └── Exceptions/
     └── BookingConflictException.php
 ```
 
 ### Obsługa race conditions
 
-`BookingService::book()` wykonuje sprawdzenie konfliktu i INSERT wewnątrz `DB::transaction()` z pesymistycznym lockiem `lockForUpdate()`. Gwarantuje to, że przy wielu równoczesnych żądaniach tylko jedno przejdzie przez sekcję krytyczną — pozostałe otrzymają `BookingConflictException` (HTTP 422).
+`BookingService::book()` wykonuje sprawdzenie konfliktu i INSERT wewnątrz `DB::transaction()`. Blokada zakładana jest na wiersz **zasobu** (`resources`), nie na wiersze rezerwacji — to rozwiązuje tzw. *empty-set problem*: gdyby lock dotyczył tabeli `bookings`, przy braku istniejących rezerwacji nie byłoby żadnego wiersza do zablokowania i dwie transakcje mogłyby jednocześnie przejść sprawdzenie konfliktu. Blokada na zasobie zawsze istnieje, więc transakcje dla tego samego zasobu są serializowane. Pozostałe żądania otrzymują `BookingConflictException` (HTTP 422).
 
 ```php
 DB::transaction(function () use ($data) {
+    // Blokuje wiersz zasobu — stabilna kotwica zawsze istniejąca w DB.
+    // Serializuje wszystkie równoczesne próby rezerwacji tego zasobu,
+    // w tym pierwszą (gdy tabela bookings jest jeszcze pusta).
+    Resource::whereKey($data['resource_id'])->lockForUpdate()->firstOrFail();
+
     $conflict = Booking::where('resource_id', $data['resource_id'])
         ->where('start_at', '<', $data['end_at'])
         ->where('end_at', '>', $data['start_at'])
-        ->lockForUpdate()   // blokuje wiersze na czas transakcji
         ->exists();
 
     if ($conflict) {
