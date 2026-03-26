@@ -79,7 +79,7 @@ async function handleSubmit() {
     resource_id: Number(form.resource_id),
     start_at: toApiDate(form.start_at),
     end_at: toApiDate(form.end_at),
-    customer_name: form.customer_name,
+    customer_name: form.customer_name.trim(),
   })
 
   if (success) {
