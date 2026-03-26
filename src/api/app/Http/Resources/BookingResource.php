@@ -15,11 +15,11 @@ class BookingResource extends JsonResource
         return [
             'id' => $this->id,
             'resource_id' => $this->resource_id,
-            'start_at' => $this->start_at?->toIso8601String(),
-            'end_at' => $this->end_at?->toIso8601String(),
+            'start_at' => $this->start_at->toIso8601String(),
+            'end_at' => $this->end_at->toIso8601String(),
             'customer_name' => $this->customer_name,
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_at' => $this->created_at->toIso8601String(),
+            'updated_at' => $this->updated_at->toIso8601String(),
         ];
     }
 }
