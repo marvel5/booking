@@ -16,12 +16,9 @@ const emit = defineEmits<{
   submitted: []
 }>()
 
-const { public: { apiBase } } = useRuntimeConfig()
 const { booking, pending, conflictMessage, validationErrors, submit, reset } = useBooking()
 
-const { data: resourcesData } = await useFetch<{ data: Resource[] }>('/api/v1/resources', {
-  baseURL: apiBase,
-})
+const { data: resourcesData } = await useFetch<{ data: Resource[] }>('/api/v1/resources')
 const resources = computed(() => resourcesData.value?.data ?? [])
 
 const form = reactive({

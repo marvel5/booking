@@ -11,16 +11,14 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    public: {
-      // Override in production via NUXT_PUBLIC_API_BASE env var
-      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost',
-    },
+    // Server-side only — used by routeRules proxy
+    apiUrl: process.env.NUXT_API_URL ?? 'http://localhost',
   },
 
   nitro: {
     routeRules: {
-      '/api/**': {
-        proxy: `${process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost'}/api/**`,
+      '/api/v1/**': {
+        proxy: `${process.env.NUXT_API_URL ?? 'http://localhost'}/api/v1/**`,
       },
     },
   },
