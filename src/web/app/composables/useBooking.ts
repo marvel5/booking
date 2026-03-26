@@ -8,6 +8,8 @@ interface BookingPayload {
 }
 
 export function useBooking() {
+  const { public: { apiBase } } = useRuntimeConfig()
+
   const booking = ref<Booking | null>(null)
   const pending = ref(false)
   const conflictMessage = ref<string | null>(null)
@@ -24,6 +26,7 @@ export function useBooking() {
 
     try {
       const data = await $fetch<{ data: Booking }>('/api/v1/bookings', {
+        baseURL: apiBase,
         method: 'POST',
         body: payload,
       })
