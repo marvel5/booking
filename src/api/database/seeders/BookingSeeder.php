@@ -12,7 +12,6 @@ class BookingSeeder extends Seeder
     {
         $resources = Resource::all();
 
-        // Kilka konkretnych rezerwacji dla demonstracji
         $bookings = [
             [
                 'resource_id' => $resources->firstWhere('name', 'Apartament 101')->id,
