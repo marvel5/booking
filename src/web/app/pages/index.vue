@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card'
+
 useSeoMeta({
   title: 'System Rezerwacji',
   description: 'Zarezerwuj apartament online',
@@ -6,20 +14,21 @@ useSeoMeta({
 </script>
 
 <template>
-  <main class="min-h-screen bg-gray-50 px-4 py-12">
+  <main class="bg-muted/40 min-h-screen px-4 py-12">
     <div class="mx-auto max-w-lg">
-      <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900">
-          System Rezerwacji
-        </h1>
-        <p class="mt-2 text-gray-500">
-          Wybierz apartament i termin pobytu
-        </p>
-      </div>
-
-      <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <BookingForm />
-      </div>
+      <Card>
+        <CardHeader class="text-center">
+          <CardTitle class="text-2xl">
+            System Rezerwacji
+          </CardTitle>
+          <CardDescription>
+            Wybierz apartament i termin pobytu
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BookingForm />
+        </CardContent>
+      </Card>
     </div>
   </main>
 </template>

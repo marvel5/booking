@@ -1,5 +1,16 @@
 <script setup lang="ts">
 import type { Resource } from '~/types/booking'
+import { Alert, AlertDescription } from '~/components/ui/alert'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 const emit = defineEmits<{
   submitted: []
@@ -7,11 +18,14 @@ const emit = defineEmits<{
 
 const { booking, pending, conflictMessage, validationErrors, submit, reset } = useBooking()
 
-const { data: resourcesData } = await useFetch<{ data: Resource[] }>('/api/v1/resources')
+// server: false — fetch runs only client-side, so the dev proxy works correctly
+const { data: resourcesData } = await useFetch<{ data: Resource[] }>('/api/v1/resources', {
+  server: false,
+})
 const resources = computed(() => resourcesData.value?.data ?? [])
 
 const form = reactive({
-  resource_id: null as number | null,
+  resource_id: '' as string,
   start_at: '',
   end_at: '',
   customer_name: '',
@@ -27,7 +41,7 @@ async function handleSubmit() {
   }
 
   const success = await submit({
-    resource_id: form.resource_id,
+    resource_id: Number(form.resource_id),
     start_at: form.start_at,
     end_at: form.end_at,
     customer_name: form.customer_name,
@@ -40,12 +54,7 @@ async function handleSubmit() {
 
 function handleNewBooking() {
   reset()
-  Object.assign(form, {
-    resource_id: null,
-    start_at: '',
-    end_at: '',
-    customer_name: '',
-  })
+  Object.assign(form, { resource_id: '', start_at: '', end_at: '', customer_name: '' })
 }
 </script>
 
@@ -62,112 +71,91 @@ function handleNewBooking() {
       class="space-y-5"
       @submit.prevent="handleSubmit"
     >
-      <!-- Conflict / server error -->
-      <div
-        v-if="conflictMessage"
-        class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        role="alert"
-      >
-        {{ conflictMessage }}
-      </div>
+      <!-- Conflict error -->
+      <Alert v-if="conflictMessage" variant="destructive">
+        <AlertDescription>{{ conflictMessage }}</AlertDescription>
+      </Alert>
 
       <!-- Resource -->
-      <div class="space-y-1.5">
-        <label class="block text-sm font-medium text-gray-700" for="resource_id">
-          Apartament / zasób
-        </label>
-        <select
-          id="resource_id"
-          v-model="form.resource_id"
-          class="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2"
-          :class="fieldError('resource_id') ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-blue-300'"
-          required
-        >
-          <option :value="null" disabled>
-            Wybierz apartament...
-          </option>
-          <option
-            v-for="resource in resources"
-            :key="resource.id"
-            :value="resource.id"
+      <div class="space-y-2">
+        <Label for="resource_id">Apartament / zasób</Label>
+        <Select v-model="form.resource_id" required>
+          <SelectTrigger
+            id="resource_id"
+            :class="fieldError('resource_id') ? 'border-destructive' : ''"
           >
-            {{ resource.name }}
-            <template v-if="resource.capacity">
-              ({{ resource.capacity }} os.)
-            </template>
-          </option>
-        </select>
-        <p v-if="fieldError('resource_id')" class="text-xs text-red-600">
+            <SelectValue placeholder="Wybierz apartament..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem
+              v-for="resource in resources"
+              :key="resource.id"
+              :value="String(resource.id)"
+            >
+              {{ resource.name }}
+              <span v-if="resource.capacity" class="text-muted-foreground">
+                ({{ resource.capacity }} os.)
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <p v-if="fieldError('resource_id')" class="text-sm text-destructive">
           {{ fieldError('resource_id') }}
         </p>
       </div>
 
       <!-- Dates -->
       <div class="grid gap-4 sm:grid-cols-2">
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-gray-700" for="start_at">
-            Data przyjazdu
-          </label>
-          <input
+        <div class="space-y-2">
+          <Label for="start_at">Data przyjazdu</Label>
+          <Input
             id="start_at"
             v-model="form.start_at"
-            class="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2"
-            :class="fieldError('start_at') ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-blue-300'"
             type="datetime-local"
+            :class="fieldError('start_at') ? 'border-destructive' : ''"
             required
-          >
-          <p v-if="fieldError('start_at')" class="text-xs text-red-600">
+          />
+          <p v-if="fieldError('start_at')" class="text-sm text-destructive">
             {{ fieldError('start_at') }}
           </p>
         </div>
 
-        <div class="space-y-1.5">
-          <label class="block text-sm font-medium text-gray-700" for="end_at">
-            Data wyjazdu
-          </label>
-          <input
+        <div class="space-y-2">
+          <Label for="end_at">Data wyjazdu</Label>
+          <Input
             id="end_at"
             v-model="form.end_at"
-            class="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2"
-            :class="fieldError('end_at') ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-blue-300'"
             type="datetime-local"
+            :class="fieldError('end_at') ? 'border-destructive' : ''"
             required
-          >
-          <p v-if="fieldError('end_at')" class="text-xs text-red-600">
+          />
+          <p v-if="fieldError('end_at')" class="text-sm text-destructive">
             {{ fieldError('end_at') }}
           </p>
         </div>
       </div>
 
       <!-- Customer name -->
-      <div class="space-y-1.5">
-        <label class="block text-sm font-medium text-gray-700" for="customer_name">
-          Imię i nazwisko
-        </label>
-        <input
+      <div class="space-y-2">
+        <Label for="customer_name">Imię i nazwisko</Label>
+        <Input
           id="customer_name"
           v-model="form.customer_name"
-          class="w-full rounded-lg border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2"
-          :class="fieldError('customer_name') ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-blue-300'"
           type="text"
           placeholder="Jan Kowalski"
           maxlength="255"
+          :class="fieldError('customer_name') ? 'border-destructive' : ''"
           required
-        >
-        <p v-if="fieldError('customer_name')" class="text-xs text-red-600">
+        />
+        <p v-if="fieldError('customer_name')" class="text-sm text-destructive">
           {{ fieldError('customer_name') }}
         </p>
       </div>
 
       <!-- Submit -->
-      <button
-        class="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        type="submit"
-        :disabled="pending"
-      >
-        <span v-if="pending">Rezerwuję...</span>
-        <span v-else>Zarezerwuj</span>
-      </button>
+      <Button type="submit" class="w-full" :disabled="pending">
+        {{ pending ? 'Rezerwuję...' : 'Zarezerwuj' }}
+      </Button>
     </form>
   </div>
 </template>
