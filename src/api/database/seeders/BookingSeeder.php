@@ -43,7 +43,6 @@ class BookingSeeder extends Seeder
             Booking::create($booking);
         }
 
-        // Losowe rezerwacje na pozostałe apartamenty
         $resources->each(function (Resource $resource) {
             Booking::factory()
                 ->count(3)
