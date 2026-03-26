@@ -19,6 +19,7 @@ class BookingResource extends JsonResource
             'end_at' => $this->end_at->toIso8601String(),
             'customer_name' => $this->customer_name,
             'created_at' => $this->created_at->toIso8601String(),
+            'updated_at' => $this->updated_at->toIso8601String(),
         ];
     }
 }

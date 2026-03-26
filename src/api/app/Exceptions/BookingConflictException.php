@@ -2,10 +2,10 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use Illuminate\Http\JsonResponse;
+use RuntimeException;
 
-class BookingConflictException extends Exception
+class BookingConflictException extends RuntimeException
 {
     public function render(): JsonResponse
     {

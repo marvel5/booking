@@ -29,7 +29,7 @@ class BookingStoreTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'data' => ['id', 'resource_id', 'start_at', 'end_at', 'customer_name', 'created_at'],
+                'data' => ['id', 'resource_id', 'start_at', 'end_at', 'customer_name', 'created_at', 'updated_at'],
             ])
             ->assertJsonPath('data.customer_name', 'Jan Kowalski')
             ->assertJsonPath('data.resource_id', $this->resource->id);
