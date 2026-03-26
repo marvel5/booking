@@ -87,6 +87,11 @@ class BookingConcurrencyTest extends TestCase
         $successCount  = count(array_filter($results, fn(string $r) => $r === 'success'));
         $conflictCount = count(array_filter($results, fn(string $r) => $r === 'conflict'));
 
+        // Guard against unexpected results (e.g. PDOException, missing connection)
+        // that would return neither 'success' nor 'conflict', silently skewing counts.
+        $this->assertCount(5, $results, 'All five processes must return a result.');
+        $this->assertSame(5, $successCount + $conflictCount, 'Every process must return either "success" or "conflict" — no unexpected exceptions.');
+
         $this->assertSame(1, $successCount,  'Exactly one booking should succeed.');
         $this->assertSame(4, $conflictCount, 'Remaining four should be rejected as conflicts.');
         $this->assertDatabaseCount('bookings', 1);
