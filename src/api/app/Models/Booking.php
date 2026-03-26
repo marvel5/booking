@@ -32,6 +32,7 @@ class Booking extends Model
         ];
     }
 
+    /** @return BelongsTo<Resource, $this> */
     public function resource(): BelongsTo
     {
         return $this->belongsTo(Resource::class);
